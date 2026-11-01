@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="src/assets/css/style.css">
+   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+    <title>Clima</title>
+</head>
+<body>
+    <main id="app">
+       
+        <h1 class="titulo">App de Clima</h1>
+     <div id="campo-busca">
+        <input type="text" id="cidade" placeholder="Digite a Cidade" class="pesquisar"> 
+        <button id="btn-buscar" aria-label="Buscar"><i class="ti ti-search"></i></button>
+     </div>
+    
+    
+     <p id="erro" class="oculto"  role="alert">Cidade não encontrada. Confira o nome e tente de novo.</p>
+     <p id="carregando" class="oculto">Carregando...</p>
+
+     <div id="card">
+        <p id="cidade-escolhida" >Feira de Santana, BA</p>
+        <img src="src/assets/img/icons8-nuvem-50.png" id="icone-clima">
+        <p id="temperatura">28°C</p>
+        <p id="descricao">Parcialmente nublado</p>
+        
+        <div class="informacoes">
+        
+            <div>
+            <p class="classificacao">Sensação</p>
+            <p id="valor-sensacao" class="valor-info">30°C</p>
+           </div>
+          
+           <div>
+            <p class="classificacao">Umidade</p>
+            <p id="valor-umidade" class="valor-info">64%</p>
+           </div>
+
+            <div>
+            <p class="classificacao">Velocidade</p>
+            <p id="velocidade-valor" class="valor-info">14km/h</p>
+            </div>
+
+        </div>
+        
+     </div>
+        
+     <div>
+             <p>Próximos dias</p>
+          <div id="proximos-dias">
+           <p>Qua <img  src="src/assets/img/icons8-sol-24.png" alt=""></p> 
+            <p>Qui <img  src="src/assets/img/icons8-chuva-50.png" alt=""></p>
+            <p>Sex <img  src="src/assets/img/icons8-nuvem-50.png" alt=""></p>
+            <p>Sáb <img  src="src/assets/img/icons8-sol-24.png" alt=""></p>
+            <p>Dom <img  src="src/assets/img/icons8-sol-24.png" alt=""></p>
+          </div>
+     </div>
+        
+     <p class="titulo-secao">Últimas buscas</p>
+     
+        <div id="container-buscas">
+       <p class="busca-recente">Salvador</p>
+         <p class="busca-recente">São Paulo</p>
+         <p class="busca-recente">Recife</p>
+      </div>
+  
+    </main>
+    
+        
+ <script type="text/javascript" src="src/assets/js/script.js"></script>
+</body>
+</html>
