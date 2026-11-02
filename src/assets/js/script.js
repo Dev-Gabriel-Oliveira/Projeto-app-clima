@@ -1,3 +1,5 @@
+let previsaoAtual = null
+
 function mostrarClima(dadosclima, nomeEncontrado) {
     const cidadeEscolhida = document.getElementById("cidade-escolhida")
     cidadeEscolhida.textContent = nomeEncontrado 
@@ -21,6 +23,8 @@ function mostrarClima(dadosclima, nomeEncontrado) {
 
     const descricao = document.getElementById("descricao")
     descricao.textContent = clima.descricao
+
+    mostrarPrevisao(dadosclima.daily)
 }
  async function buscarClima(latitude,longitude, nomeEncontrado){
     try{
@@ -97,11 +101,62 @@ function interpretarCodigo(codigo){
         return{icone: "src/assets/img/icons8-nuvem-50.png", descricao:"Nublado"}
     }
     if((codigo >= 51 && codigo <=67 ) || (codigo >= 80 && codigo <= 82) || (codigo >= 95 && codigo <= 99)){
-        return{icone:"src/assets/img/icons8-chuva-50.png", descrica:"Chuva" }
+        return{icone:"src/assets/img/icons8-chuva-50.png", descricao:"Chuva" }
     }
     
-    return {icone: "src/assets/img/icons8-nuvem-50.png", descrica:"Nublado"}
+    return {icone: "src/assets/img/icons8-nuvem-50.png", descricao:"Nublado"}
 }
+
+function mostrarPrevisao(daily) {
+    const lista = document.getElementById("proximos-dias")
+    lista.innerHTML = ""
+    document.getElementById("detalhe-dia").classList.add("oculto")
+    
+    for (let i = 1; i<= 5; i++){
+    const data = daily.time[i]
+    const clima = interpretarCodigo(daily.weather_code[i])
+    const max = Math.round(daily.temperature_2m_max[i])
+    const min = Math.round(daily.temperature_2m_min[i])
+
+    const diaSemana = new Date(data + "T12:00:00").toLocaleDateString("pt-BR", {weekday:"short"})
+
+    lista.innerHTML += `<p data-indice="${i}">${diaSemana} <img src="${clima.icone}" alt="${clima.descricao}"> ${max}°</p>`
+
+    previsaoAtual = daily
+
+    
+  }
+}
+
+const listaDias = document.getElementById("proximos-dias")
+
+listaDias.addEventListener("click", function(evento){
+    const card = evento.target.closest("p")
+    if(!card){
+        return
+    }
+
+    const i = card.dataset.indice
+    mostrarDetalhe(i)
+})
+
+function mostrarDetalhe(i){
+    const detalhes = document.getElementById("detalhe-dia")
+    
+    const data = previsaoAtual.time[i]
+    const clima = interpretarCodigo(previsaoAtual.weather_code[i])
+    const max = Math.round(previsaoAtual.temperature_2m_max[i])
+    const min = Math.round(previsaoAtual.temperature_2m_min[i])
+
+    const proximos = new Date(data + "T12:00:00").toLocaleDateString("pt-BR", {weekday:"long", day:"numeric", month:"long"})
+
+    detalhes.innerHTML = `<p>${proximos}</p> <p>${clima.descricao}</p> <p>Máx ${max}° / Mín ${min}°</p>`
+
+    detalhes.classList.remove("oculto")
+
+    console.log(clima, max, min, proximos)
+}
+
 
 
 
