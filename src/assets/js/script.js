@@ -41,7 +41,7 @@ async function buscarCidade(nome){
      try{
         const respostas = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${nome}&count=1&language=pt`)
         const dados = await respostas.json()
-        
+         
         
         erro.classList.add("oculto")
         carregando.classList.remove("oculto")
@@ -56,15 +56,20 @@ async function buscarCidade(nome){
         const latitude = dados.results[0].latitude
         const longitude = dados.results[0].longitude
         const nomeEncontrado = dados.results[0].name
-    
+        
+        salvarBuscas(nomeEncontrado)
+        mostrarBuscas()
         await  buscarClima(latitude,longitude, nomeEncontrado)
-     
+        
     
+        
     } catch(erro){
       console.log("Deu erro", erro)
     } finally{
         carregando.classList.add("oculto")
     }
+
+
 }
 
 
@@ -157,16 +162,43 @@ function mostrarDetalhe(i){
     console.log(clima, max, min, proximos)
 }
 
+ const containerbuscas = document.getElementById("container-buscas")
 
+ function salvarBuscas(nome) {
+    const lista = JSON.parse(localStorage.getItem("buscas")) || []
 
+    const semRepetidos = lista.filter(function(cidade){
+        return cidade !== nome
+    })
 
+    semRepetidos.unshift(nome)
 
+    const ultimas = semRepetidos.slice(0,5)
 
+    localStorage.setItem("buscas", JSON.stringify(ultimas))
+ }
 
-
-
-
+function mostrarBuscas(){
+    const lista = JSON.parse(localStorage.getItem("buscas")) || []
+    containerbuscas.innerHTML =""
     
+    lista.forEach(function(cidade){
+        containerbuscas.innerHTML += `<p class="busca-recente">${cidade}</p>`
+    })
+}
+
+
+containerbuscas.addEventListener("click", function(evento){
+    const info = evento.target.closest(".busca-recente")
+    if(!info){
+        return
+    }
+
+    buscarCidade(info.textContent)
+})
+
+
+  
 
 
 

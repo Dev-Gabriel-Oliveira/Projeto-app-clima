@@ -156,6 +156,7 @@ input, button {
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
+    cursor: pointer;
 }
 
 .busca-recente{
@@ -165,3 +166,4 @@ input, button {
     padding: 4px 12px;
     font-size: 13px;
 }
+
