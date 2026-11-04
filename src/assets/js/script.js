@@ -44,7 +44,7 @@ async function buscarClima(latitude, longitude, nomeEncontrado) {
 
 }
 
-async function buscarCidade(nome) {
+async function buscarCidade(nome, salvar = true) {
     try {
         const respostas = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${nome}&count=1&language=pt`)
         const dados = await respostas.json()
@@ -61,8 +61,10 @@ async function buscarCidade(nome) {
         const longitude = dados.results[0].longitude
         const nomeEncontrado = dados.results[0].name
 
-        salvarBuscas(nomeEncontrado)
-        mostrarBuscas()
+        if(salvar){
+            salvarBuscas(nomeEncontrado)
+            mostrarBuscas()
+        }  
         await buscarClima(latitude, longitude, nomeEncontrado)
 
     } catch (erro) {
@@ -183,7 +185,7 @@ containerbuscas.addEventListener("click", function (evento) {
     buscarCidade(info.textContent)
 })
 
-
+buscarCidade("Feira de Santana", false)
 mostrarBuscas()
 
 
