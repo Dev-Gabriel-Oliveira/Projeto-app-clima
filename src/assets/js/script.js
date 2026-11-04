@@ -48,7 +48,7 @@ async function buscarCidade(nome, salvar = true) {
         mensagemErro.classList.add("oculto")
         carregando.classList.remove("oculto")
         
-        const respostas = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${nome}&count=1&language=pt`)
+        const respostas = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${nome}&count=10&language=pt`)
         if (!respostas.ok) {
         throw new Error("Falha na resposta da API")
         }
@@ -58,17 +58,30 @@ async function buscarCidade(nome, salvar = true) {
             mensagemErro.textContent = "Cidade não encontrada. Confira o nome e tente de novo."
             mensagemErro.classList.remove("oculto")
             return
+        } 
+
+        const lugar = dados.results.find(function(item){
+            return item.name.toLowerCase() === nome.toLowerCase()
+        }) || dados.results[0]
+
+        const latitude = lugar.latitude
+        const longitude = lugar.longitude
+        const nomeEncontrado = lugar.name
+
+        let nomeExibido = nomeEncontrado
+        if(lugar.admin2 && lugar.admin2 !== lugar.name){
+            nomeExibido = `${lugar.name}, ${lugar.admin2}`
         }
 
-        const latitude = dados.results[0].latitude
-        const longitude = dados.results[0].longitude
-        const nomeEncontrado = dados.results[0].name
+        if(lugar.admin1){
+            nomeExibido = `${nomeExibido}, ${lugar.admin1}`
+        }
 
         if(salvar){
             salvarBuscas(nomeEncontrado)
             mostrarBuscas()
         }  
-        await buscarClima(latitude, longitude, nomeEncontrado)
+        await buscarClima(latitude, longitude, nomeExibido)
 
     } catch (erro) {
         mensagemErro.textContent = "Não foi possível buscar o clima. Verifique sua conexão"
