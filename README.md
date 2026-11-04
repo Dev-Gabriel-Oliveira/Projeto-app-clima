@@ -4,8 +4,6 @@ Aplicação web que mostra o clima atual e a previsão dos próximos dias de qua
 
 (https://dev-gabriel-oliveira.github.io/Projeto-app-clima/)
 
-![Tela do App de Clima]([caminho do print])
-
 ## Funcionalidades
 
 - Busca de cidade por nome (clique na lupa ou tecla Enter)
