@@ -34,25 +34,28 @@ function mostrarClima(dadosclima, nomeEncontrado) {
     mostrarPrevisao(dadosclima.daily)
 }
 async function buscarClima(latitude, longitude, nomeEncontrado) {
-    try {
-        const respostasclima = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto`)
-        const dadosclima = await respostasclima.json()
-        mostrarClima(dadosclima, nomeEncontrado)
-    } catch (erro) {
-        console.log("Deu erro", erro)
+    const respostasclima = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto`)
+        
+    if (!respostasclima.ok) {
+      throw new Error("Falha na resposta da API")
     }
-
+    const dadosclima = await respostasclima.json()
+    mostrarClima(dadosclima, nomeEncontrado)
 }
 
 async function buscarCidade(nome, salvar = true) {
     try {
-        const respostas = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${nome}&count=1&language=pt`)
-        const dados = await respostas.json()
-
         mensagemErro.classList.add("oculto")
         carregando.classList.remove("oculto")
-
+        
+        const respostas = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${nome}&count=1&language=pt`)
+        if (!respostas.ok) {
+        throw new Error("Falha na resposta da API")
+        }
+        const dados = await respostas.json()
+        
         if (!dados.results) {
+            mensagemErro.textContent = "Cidade não encontrada. Confira o nome e tente de novo."
             mensagemErro.classList.remove("oculto")
             return
         }
@@ -68,6 +71,8 @@ async function buscarCidade(nome, salvar = true) {
         await buscarClima(latitude, longitude, nomeEncontrado)
 
     } catch (erro) {
+        mensagemErro.textContent = "Não foi possível buscar o clima. Verifique sua conexão"
+        mensagemErro.classList.remove("oculto")
         console.log("Deu erro", erro)
     } finally {
         carregando.classList.add("oculto")
