@@ -1,8 +1,15 @@
 let previsaoAtual = null
+//ELEMENTOS DO HTML
+const mensagemErro = document.getElementById("erro")
+const carregando = document.getElementById("carregando")
+const campo = document.getElementById("cidade")
+const botao = document.getElementById("btn-buscar")
+const listaDias = document.getElementById("proximos-dias")
+const containerbuscas = document.getElementById("container-buscas")
 
 function mostrarClima(dadosclima, nomeEncontrado) {
     const cidadeEscolhida = document.getElementById("cidade-escolhida")
-    cidadeEscolhida.textContent = nomeEncontrado 
+    cidadeEscolhida.textContent = nomeEncontrado
 
     const temperatura = document.getElementById("temperatura")
     temperatura.textContent = `${Math.round(dadosclima.current.temperature_2m)}°C`
@@ -26,118 +33,100 @@ function mostrarClima(dadosclima, nomeEncontrado) {
 
     mostrarPrevisao(dadosclima.daily)
 }
- async function buscarClima(latitude,longitude, nomeEncontrado){
-    try{
+async function buscarClima(latitude, longitude, nomeEncontrado) {
+    try {
         const respostasclima = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto`)
         const dadosclima = await respostasclima.json()
         mostrarClima(dadosclima, nomeEncontrado)
-    } catch(erro){
+    } catch (erro) {
         console.log("Deu erro", erro)
     }
- 
- }
-    
-async function buscarCidade(nome){
-     try{
-        const respostas = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${nome}&count=1&language=pt`)
-        const dados = await respostas.json()
-         
-        
-        erro.classList.add("oculto")
-        carregando.classList.remove("oculto")
-
-        if(!dados.results){
-            erro.classList.remove("oculto")
-            return
-        }else{
-            carregando.classList.remove("oculto")
-        }
-        
-        const latitude = dados.results[0].latitude
-        const longitude = dados.results[0].longitude
-        const nomeEncontrado = dados.results[0].name
-        
-        salvarBuscas(nomeEncontrado)
-        mostrarBuscas()
-        await  buscarClima(latitude,longitude, nomeEncontrado)
-        
-    
-        
-    } catch(erro){
-      console.log("Deu erro", erro)
-    } finally{
-        carregando.classList.add("oculto")
-    }
-
 
 }
 
+async function buscarCidade(nome) {
+    try {
+        const respostas = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${nome}&count=1&language=pt`)
+        const dados = await respostas.json()
 
-const erro = document.getElementById("erro")
-const carregando = document.getElementById("carregando")
+        mensagemErro.classList.add("oculto")
+        carregando.classList.remove("oculto")
 
-const campo = document.getElementById("cidade")
-const botao = document.getElementById("btn-buscar")
+        if (!dados.results) {
+            mensagemErro.classList.remove("oculto")
+            return
+        }
 
-function pesquisar(){
+        const latitude = dados.results[0].latitude
+        const longitude = dados.results[0].longitude
+        const nomeEncontrado = dados.results[0].name
+
+        salvarBuscas(nomeEncontrado)
+        mostrarBuscas()
+        await buscarClima(latitude, longitude, nomeEncontrado)
+
+    } catch (erro) {
+        console.log("Deu erro", erro)
+    } finally {
+        carregando.classList.add("oculto")
+    }
+
+}
+
+function pesquisar() {
     const nome = campo.value.trim()
-    
-    if(nome === ""){
+
+    if (nome === "") {
         return
     }
     buscarCidade(nome)
-    campo.value =""
+    campo.value = ""
     campo.focus()
 }
 
 botao.addEventListener("click", pesquisar)
 
-campo.addEventListener("keydown", function(evento) {
-  if(evento.key === "Enter"){
-    pesquisar()
-  }
+campo.addEventListener("keydown", function (evento) {
+    if (evento.key === "Enter") {
+        pesquisar()
+    }
 })
 
-function interpretarCodigo(codigo){
-    if(codigo === 0  || codigo === 1){
-        return{icone:"src/assets/img/icons8-sol-24.png", descricao:"Céu limpo"}
+function interpretarCodigo(codigo) {
+    if (codigo === 0 || codigo === 1) {
+        return { icone: "src/assets/img/icons8-sol-24.png", descricao: "Céu limpo" }
     }
-    if(codigo === 2 || codigo === 3 || codigo === 45 || codigo === 48 ){
-        return{icone: "src/assets/img/icons8-nuvem-50.png", descricao:"Nublado"}
+    if (codigo === 2 || codigo === 3 || codigo === 45 || codigo === 48) {
+        return { icone: "src/assets/img/icons8-nuvem-50.png", descricao: "Nublado" }
     }
-    if((codigo >= 51 && codigo <=67 ) || (codigo >= 80 && codigo <= 82) || (codigo >= 95 && codigo <= 99)){
-        return{icone:"src/assets/img/icons8-chuva-50.png", descricao:"Chuva" }
+    if ((codigo >= 51 && codigo <= 67) || (codigo >= 80 && codigo <= 82) || (codigo >= 95 && codigo <= 99)) {
+        return { icone: "src/assets/img/icons8-chuva-50.png", descricao: "Chuva" }
     }
-    
-    return {icone: "src/assets/img/icons8-nuvem-50.png", descricao:"Nublado"}
+
+    return { icone: "src/assets/img/icons8-nuvem-50.png", descricao: "Nublado" }
 }
 
 function mostrarPrevisao(daily) {
     const lista = document.getElementById("proximos-dias")
     lista.innerHTML = ""
     document.getElementById("detalhe-dia").classList.add("oculto")
-    
-    for (let i = 1; i<= 5; i++){
-    const data = daily.time[i]
-    const clima = interpretarCodigo(daily.weather_code[i])
-    const max = Math.round(daily.temperature_2m_max[i])
-    const min = Math.round(daily.temperature_2m_min[i])
-
-    const diaSemana = new Date(data + "T12:00:00").toLocaleDateString("pt-BR", {weekday:"short"})
-
-    lista.innerHTML += `<p data-indice="${i}">${diaSemana} <img src="${clima.icone}" alt="${clima.descricao}"> ${max}°</p>`
-
     previsaoAtual = daily
 
-    
-  }
+    for (let i = 1; i <= 5; i++) {
+        const data = daily.time[i]
+        const clima = interpretarCodigo(daily.weather_code[i])
+        const max = Math.round(daily.temperature_2m_max[i])
+
+        const diaSemana = new Date(data + "T12:00:00").toLocaleDateString("pt-BR", { weekday: "short" })
+
+        lista.innerHTML += `<p data-indice="${i}">${diaSemana} <img src="${clima.icone}" alt="${clima.descricao}"> ${max}°</p>`
+
+    }
 }
 
-const listaDias = document.getElementById("proximos-dias")
-
-listaDias.addEventListener("click", function(evento){
+listaDias.addEventListener("click", function (evento) {
     const card = evento.target.closest("p")
-    if(!card){
+    if (!card) {
         return
     }
 
@@ -145,52 +134,49 @@ listaDias.addEventListener("click", function(evento){
     mostrarDetalhe(i)
 })
 
-function mostrarDetalhe(i){
+function mostrarDetalhe(i) {
     const detalhes = document.getElementById("detalhe-dia")
-    
+
     const data = previsaoAtual.time[i]
     const clima = interpretarCodigo(previsaoAtual.weather_code[i])
     const max = Math.round(previsaoAtual.temperature_2m_max[i])
     const min = Math.round(previsaoAtual.temperature_2m_min[i])
 
-    const proximos = new Date(data + "T12:00:00").toLocaleDateString("pt-BR", {weekday:"long", day:"numeric", month:"long"})
+    const proximos = new Date(data + "T12:00:00").toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" })
 
     detalhes.innerHTML = `<p>${proximos}</p> <p>${clima.descricao}</p> <p>Máx ${max}° / Mín ${min}°</p>`
 
     detalhes.classList.remove("oculto")
 
-    console.log(clima, max, min, proximos)
 }
 
- const containerbuscas = document.getElementById("container-buscas")
-
- function salvarBuscas(nome) {
+function salvarBuscas(nome) {
     const lista = JSON.parse(localStorage.getItem("buscas")) || []
 
-    const semRepetidos = lista.filter(function(cidade){
+    const semRepetidos = lista.filter(function (cidade) {
         return cidade !== nome
     })
 
     semRepetidos.unshift(nome)
 
-    const ultimas = semRepetidos.slice(0,5)
+    const ultimas = semRepetidos.slice(0, 5)
 
     localStorage.setItem("buscas", JSON.stringify(ultimas))
- }
+}
 
-function mostrarBuscas(){
+function mostrarBuscas() {
     const lista = JSON.parse(localStorage.getItem("buscas")) || []
-    containerbuscas.innerHTML =""
-    
-    lista.forEach(function(cidade){
+    containerbuscas.innerHTML = ""
+
+    lista.forEach(function (cidade) {
         containerbuscas.innerHTML += `<p class="busca-recente">${cidade}</p>`
     })
 }
 
 
-containerbuscas.addEventListener("click", function(evento){
+containerbuscas.addEventListener("click", function (evento) {
     const info = evento.target.closest(".busca-recente")
-    if(!info){
+    if (!info) {
         return
     }
 
@@ -198,7 +184,7 @@ containerbuscas.addEventListener("click", function(evento){
 })
 
 
-  
+mostrarBuscas()
 
 
 
