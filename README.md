@@ -1,42 +1,44 @@
-# App de Clima
+# 🌤️ App de Clima
 
-Aplicação web que mostra o clima atual e a previsão dos próximos dias de qualquer cidade. Projeto feito para praticar consumo de API com JavaScript puro.
+Aplicação web para consulta de condições meteorológicas em tempo real, desenvolvida utilizando HTML, CSS e JavaScript.
 
-(https://dev-gabriel-oliveira.github.io/Projeto-app-clima/)
+## 🚀 Funcionalidades
 
-## Funcionalidades
+- 🔎 Pesquisa meteorológica por cidade.
+- 🌡️ Consulta de temperatura atual.
+- 💧 Exibição da umidade do ar.
+- 💨 Velocidade do vento.
+- 🌥️ Condições climáticas.
+- 🕘 Histórico de pesquisas.
+- ⚠️ Tratamento de erros e cidades não encontradas.
+- 🔄 Atualização dinâmica das informações.
 
-- Busca de cidade por nome (clique na lupa ou tecla Enter)
-- Clima atual: temperatura, sensação térmica, umidade, vento e ícone do tempo
-- Previsão dos próximos 5 dias, com detalhe do dia ao clicar
-- Histórico das últimas 5 buscas, salvo no navegador, com clique para repetir a busca
-- Mensagens de erro para cidade não encontrada e falha de conexão
-- Indicador de carregamento
-- Layout responsivo, pensado para celular
-
-## Tecnologias
+## 🛠️ Tecnologias utilizadas
 
 - HTML5
-- CSS3 (Flexbox e Grid)
-- JavaScript (async/await, fetch, localStorage)
-- API Open-Meteo (geocoding e previsão do tempo)
+- CSS3
+- JavaScript
+- API meteorológica
+- Fetch API
+- LocalStorage
 
-## Como rodar
+## 📸 Demonstração
+![App de Clima](./screenshots/app-clima.jpeg)
 
-Não precisa instalar nada. Baixe ou clone o repositório e abra o arquivo `index.html` no navegador.
+## 🎬 Demonstração animada
 
-## O que aprendi
+![Demonstração do App](./screenshots/demonstracao.gif)
 
--Consumir uma API REST do zero, usando `featch` e `async/await`
--Pensamentos de logíca de programção usando uma API
--Reutilizar codígos do JS para criar outras ações para o site
+## 💻 Como executar
 
-## Créditos
+1. Clone este repositório.
+2. Abra a pasta do projeto.
+3. Execute o arquivo `index.html` no navegador.
 
-- Dados de clima: [Open-Meteo](https://open-meteo.com/)
-- Ícones: [Icons8](https://icons8.com/)
+## 📚 Objetivo
 
-## Autor
+Projeto desenvolvido para praticar JavaScript, consumo de APIs REST, manipulação do DOM, armazenamento local e tratamento de requisições assíncronas.
 
-Gabriel Oliveira
-[LinkedIn](https://www.linkedin.com/in/gabriel-oliveira-71577938b) | [GitHub](https://github.com/Dev-Gabriel-Oliveira)
+---
+
+Desenvolvido por **Gabriel Oliveira**.
