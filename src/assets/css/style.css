@@ -194,3 +194,30 @@ input, button {
     gap: 4px;
     font-size: 14px;
 }
+
+#lista-opcoes{
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+#lista-opcoes.oculto {
+    display: none;
+}
+
+
+#lista-opcoes button{
+    width: 100%;
+    height: 100%;
+    border: 1px solid #f3f2ef;
+    border-radius: 8px;
+    padding: 5px;
+    font-family: inherit;
+    cursor: pointer;
+    background: white;
+}
+
+#lista-opcoes button:hover{
+    background: #a7a6a5b2;
+
+}

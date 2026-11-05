@@ -1,4 +1,5 @@
 let previsaoAtual = null
+let opcoesAtuais = []
 //ELEMENTOS DO HTML
 const mensagemErro = document.getElementById("erro")
 const carregando = document.getElementById("carregando")
@@ -6,6 +7,7 @@ const campo = document.getElementById("cidade")
 const botao = document.getElementById("btn-buscar")
 const listaDias = document.getElementById("proximos-dias")
 const containerbuscas = document.getElementById("container-buscas")
+const listaOpcoes = document.getElementById("lista-opcoes")
 
 function mostrarClima(dadosclima, nomeEncontrado) {
     const cidadeEscolhida = document.getElementById("cidade-escolhida")
@@ -35,9 +37,9 @@ function mostrarClima(dadosclima, nomeEncontrado) {
 }
 async function buscarClima(latitude, longitude, nomeEncontrado) {
     const respostasclima = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto`)
-        
+
     if (!respostasclima.ok) {
-      throw new Error("Falha na resposta da API")
+        throw new Error("Falha na resposta da API")
     }
     const dadosclima = await respostasclima.json()
     mostrarClima(dadosclima, nomeEncontrado)
@@ -47,20 +49,20 @@ async function buscarCidade(nome, salvar = true) {
     try {
         mensagemErro.classList.add("oculto")
         carregando.classList.remove("oculto")
-        
+
         const respostas = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${nome}&count=10&language=pt`)
         if (!respostas.ok) {
-        throw new Error("Falha na resposta da API")
+            throw new Error("Falha na resposta da API")
         }
         const dados = await respostas.json()
-        
+
         if (!dados.results) {
             mensagemErro.textContent = "Cidade não encontrada. Confira o nome e tente de novo."
             mensagemErro.classList.remove("oculto")
             return
-        } 
+        }
 
-        const lugar = dados.results.find(function(item){
+        const lugar = dados.results.find(function (item) {
             return item.name.toLowerCase() === nome.toLowerCase()
         }) || dados.results[0]
 
@@ -69,18 +71,18 @@ async function buscarCidade(nome, salvar = true) {
         const nomeEncontrado = lugar.name
 
         let nomeExibido = nomeEncontrado
-        if(lugar.admin2 && lugar.admin2 !== lugar.name){
+        if (lugar.admin2 && lugar.admin2 !== lugar.name) {
             nomeExibido = `${lugar.name}, ${lugar.admin2}`
         }
 
-        if(lugar.admin1){
+        if (lugar.admin1) {
             nomeExibido = `${nomeExibido}, ${lugar.admin1}`
         }
 
-        if(salvar){
+        if (salvar) {
             salvarBuscas(nomeEncontrado)
             mostrarBuscas()
-        }  
+        }
         await buscarClima(latitude, longitude, nomeExibido)
 
     } catch (erro) {
@@ -93,17 +95,42 @@ async function buscarCidade(nome, salvar = true) {
 
 }
 
-function pesquisar() {
+ async function pesquisar() {
     const nome = campo.value.trim()
 
     if (nome === "") {
         return
     }
-    buscarCidade(nome)
     campo.value = ""
     campo.focus()
-}
 
+    try{
+        mensagemErro.classList.add("oculto")
+        carregando.classList.remove("oculto")
+        listaOpcoes.classList.add("oculto")
+
+        const lugares = await buscarLugares(nome)
+
+        if(lugares.length === 0){
+            mensagemErro.textContent = "Cidade não encontrada. Confira o nome e tente de novo."
+            mensagemErro.classList.remove("oculto")
+            return
+        }
+
+        if(lugares.length === 1){
+            await carregarLugar(lugares[0])
+            return
+        }
+
+        mostrarOpcoes(lugares)
+    } catch(erro){
+        mensagemErro.textContent = "Não foi possível buscar o clima. Verifique sua conexão"
+        mensagemErro.classList.remove("oculto")
+        console.log("Deu erro", erro)
+    } finally {
+        carregando.classList.add("oculto")
+    }
+}
 botao.addEventListener("click", pesquisar)
 
 campo.addEventListener("keydown", function (evento) {
@@ -201,6 +228,78 @@ containerbuscas.addEventListener("click", function (evento) {
     }
 
     buscarCidade(info.textContent)
+})
+
+async function buscarLugares(nome) {
+    const lista = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(nome)}&count=10&language=pt`)
+    if (!lista.ok) {
+        throw new Error("Falha na resposta da API")
+    }
+    const listaDados = await lista.json()
+
+    return listaDados.results || []
+}
+
+function montarRotulo(lugar) {
+    const partes = [lugar.name]
+    if (lugar.admin2 && lugar.admin2 !== lugar.name) {
+        partes.push(lugar.admin2)
+    }
+    if (lugar.admin1) {
+        partes.push(lugar.admin1)
+    }
+    if (lugar.country) {
+        partes.push(lugar.country)
+    }
+
+    return partes.join(", ")
+}
+
+function mostrarOpcoes(lugares) {
+    opcoesAtuais = lugares
+    listaOpcoes.innerHTML = ""
+    lugares.forEach(function (lugar, i) {
+        listaOpcoes.innerHTML += `<button data-indice="${i}">${montarRotulo(lugar)}</button>`
+    })
+    listaOpcoes.classList.remove("oculto")
+
+}
+
+ async function carregarLugar(lugar, salvar = true){
+     try {
+        mensagemErro.classList.add("oculto")
+        carregando.classList.remove("oculto")
+        listaOpcoes.classList.add("oculto")
+
+        const latitude = lugar.latitude
+        const longitude = lugar.longitude
+        const nomeEncontrado = lugar.name
+        const rotulo = montarRotulo(lugar)
+
+        if (salvar) {
+            salvarBuscas(nomeEncontrado)
+            mostrarBuscas()
+        }
+        await buscarClima(latitude, longitude, rotulo)
+
+    } catch (erro) {
+        mensagemErro.textContent = "Não foi possível buscar o clima. Verifique sua conexão."
+        mensagemErro.classList.remove("oculto")
+        console.log("Deu erro", erro)
+    } finally {
+        carregando.classList.add("oculto")
+    }
+}
+
+listaOpcoes.addEventListener("click", function(evento){
+    const botao= evento.target.closest("button")
+    if (!botao) {
+        return
+    }
+
+    const lugar = opcoesAtuais[botao.dataset.indice]
+    carregarLugar(lugar)
+
 })
 
 buscarCidade("Feira de Santana", false)
